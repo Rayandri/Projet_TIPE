@@ -4,7 +4,7 @@ pragma solidity ^0.8.12;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract ENXToken is ERC20 {
+contract ENXToken is ERC20, Ownable {
     constructor(uint256 initialSupply) ERC20("EnergyX", "ENX") {
         _mint(msg.sender, initialSupply);
     }
@@ -13,7 +13,7 @@ contract ENXToken is ERC20 {
         return 2;
     }
 
-    function privateMint(address to, uint256 amount) external OnlyOwner {
+    function privateMint(address to, uint256 amount) external onlyOwner {
         _mint(to, amount);
     }
 
