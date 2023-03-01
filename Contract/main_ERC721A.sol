@@ -16,6 +16,9 @@ contract NFTERC721A is Ownable, ERC721A {
 
     mapping(address => uint) public amountNFTsPerWallet;
     mapping(address => bool) public is_admin;
+    address public enxTokenAddress;
+    uint256 public dailyPayment;
+
 
     enum Etape {
         Alpha,
@@ -87,9 +90,33 @@ contract NFTERC721A is Ownable, ERC721A {
         receveur.transfer(balance);
     }
 
+    // Pour confier son NFT
+    function confierNFT(uint256 tokenId) public {
+        require(ownerOf(tokenId) == msg.sender, "You don't own this NFT");
+        _transfer(msg.sender, address(this), tokenId);
+    }
+
+    // Pour récupérer son NFT
+    function recupNFT(uint256 tokenId) public {
+        require(ownerOf(tokenId) == address(this), "This NFT is not entrusted to the contract");
+        _transfer(address(this), msg.sender, tokenId);
+    }
+
+    function payDaily() public {
+        uint256 balance = IERC20(enxTokenAddress).balanceOf(msg.sender);
+        require(balance >= dailyPayment, "Insufficient ENX balance");
+        require(IERC20(enxTokenAddress).transferFrom(msg.sender, address(this), dailyPayment), "Transfer failed");
+        // Ajouter l'adresse de l'utilisateur à la liste des paiements publics
+    }
 
 
-  
+    function checkBalanceAndBurn(uint256 tokenId) public {
+        uint256 balance = IERC20(enxTokenAddress).balanceOf(msg.sender);
+        if (balance < dailyPayment && ownerOf(tokenId) == address(this)) {
+            _burn(tokenId);
+        }
+    }
+
 }
 
 
