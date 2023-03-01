@@ -21,4 +21,12 @@ contract ENXToken is ERC20, Ownable {
         _burn(from, amount);
     }
 
+    function balance() public view returns (uint256) {
+        return balanceOf(msg.sender);
+    }
+
+    function checkBalance(address _address) public view returns (uint256) {
+        return balanceOf(_address);
+    }
+
 }

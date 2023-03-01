@@ -36,5 +36,4 @@ contract mainContract is Ownable {
             IERC20(_token).transfer(msg.sender, _amount);
         }
     }
-
 }
