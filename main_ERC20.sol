@@ -11,4 +11,6 @@ contract ENXToken is ERC20, ERC20Detailed {
         return 2;
     }
 
+    
+
 }
