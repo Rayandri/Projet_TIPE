@@ -13,11 +13,11 @@ contract ENXToken is ERC20 {
         return 2;
     }
 
-    function mint(address to, uint256 amount) external OnlyOwner {
+    function privateMint(address to, uint256 amount) external OnlyOwner {
         _mint(to, amount);
     }
 
-    function burn(address from, uint256 amount) public {
+    function publicBurn(address from, uint256 amount) public {
         _burn(from, amount);
     }
 
