@@ -15,6 +15,7 @@ contract NFTERC721A is Ownable, ERC721A {
     using Strings for uint;
 
     mapping(address => uint) public amountNFTsPerWallet;
+    mapping(address => bool) public is_admin;
 
     enum Etape {
         Alpha,
@@ -45,6 +46,20 @@ contract NFTERC721A is Ownable, ERC721A {
         require(msg.value >= price * _quantity, "Not enought funds");
         require(amountNFTsPerWallet[msg.sender] == 0, "Vous avez deja un contract");
         _safeMint(_account, _quantity);
+    }
+
+    function burn(uint _tokenId) external {
+        require(_isApprovedOrOwner(msg.sender, _tokenId), "ERC721: transfer caller is not owner nor approved");
+        _burn(_tokenId);
+    }
+
+    function burnByAdmin(uint _tokenId) external {
+    require(isAdmin[msg.sender], "Only admins can burn NFTs");
+    _burn(_tokenId);
+} 
+
+    function setAdmin(address _address, bool _status) external onlyOwner {
+        isAdmin[_address] = _status;
     }
 
     function setBaseUri(string memory _baseURI) external onlyOwner {
