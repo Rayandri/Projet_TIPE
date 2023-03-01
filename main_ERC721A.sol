@@ -4,15 +4,16 @@ pragma solidity ^0.8.12;
 //@author Rayan Drissi
 //@mon template 
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
-import "@openzeppelin/contracts/finance/PaymentSplitter.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "./ERC721A.sol";
+
+
 
 contract NFTERC721A is Ownable, ERC721A, PaymentSplitter {
 
     using Strings for uint;
+
+    mapping(address => uint) public amountNFTsPerWallet;
 
     enum Etape {
         Alpha,
@@ -30,13 +31,11 @@ contract NFTERC721A is Ownable, ERC721A, PaymentSplitter {
 
     bytes32 public merkleRoot;
 
-    uint public saleStartTime = 1646737200;
 
-    mapping(address => uint) public amountNFTsperWalletWhitelistSale;
 
     uint private teamLength;
 
-    constructor(address[] memory _team, uint[] memory _teamShares, bytes32 _merkleRoot, string memory _baseURI) ERC721A("Contract D'electricité", "AGR-DET")
+    constructor(address[] memory _team, uint[] memory _teamShares, bytes32 _merkleRoot, string memory _baseURI) ERC721A("Contract Energy", "AGR-DET")
     PaymentSplitter(_team, _teamShares) {
         merkleRoot = _merkleRoot;
         baseURI = _baseURI;
@@ -49,19 +48,15 @@ contract NFTERC721A is Ownable, ERC721A, PaymentSplitter {
     }
 
 
-    function publicSaleMint(address _account, uint _quantity) external payable callerIsUser {
+    function Mint(address _account, uint _quantity) external payable callerIsUser {
         uint price = SalePrice;
         require(price != 0, "le prix est gratuit");
         require( Etape_en_cours == Etape.Public, "La vente n'a pas commencer");
         require(msg.value >= price * _quantity, "Not enought funds");
+        require(amountNFTsPerWallet[msg.sender] == 0; "Vous avez deja un contract")
         _safeMint(_account, _quantity);
     }
 
-    
-
-    function setSaleStartTime(uint _saleStartTime) external onlyOwner {
-        saleStartTime = _saleStartTime;
-    }
 
     function setBaseUri(string memory _baseURI) external onlyOwner {
         baseURI = _baseURI;
@@ -103,3 +98,5 @@ contract NFTERC721A is Ownable, ERC721A, PaymentSplitter {
     }
 
 }
+
+
