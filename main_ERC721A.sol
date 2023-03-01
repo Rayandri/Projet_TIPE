@@ -4,6 +4,8 @@ pragma solidity ^0.8.12;
 //@author Rayan Drissi
 //@Contract d'energy 
 
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/finance/PaymentSplitter.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "./ERC721A.sol";
 
