@@ -4,14 +4,13 @@ pragma solidity ^0.8.12;
 //@author Rayan Drissi
 //@Contract d'energy 
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/finance/PaymentSplitter.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "./ERC721A.sol";
 
 
 
-contract NFTERC721A is Ownable, ERC721A, PaymentSplitter {
+contract NFTERC721A is Ownable, ERC721A {
 
     using Strings for uint;
 
@@ -28,14 +27,10 @@ contract NFTERC721A is Ownable, ERC721A, PaymentSplitter {
     string public baseURI;
     Etape public Etape_en_cours;
     uint public SalePrice = 1 ether;
-    bytes32 public merkleRoot;
-    uint private teamLength;
 
-    constructor(address[] memory _team, uint[] memory _teamShares, bytes32 _merkleRoot, string memory _baseURI) ERC721A("Contract Energy", "AGR-DET")
-    PaymentSplitter(_team, _teamShares) {
-        merkleRoot = _merkleRoot;
+    constructor(string memory _baseURI) ERC721A("Contract Energy", "AGR-DET")
+     {
         baseURI = _baseURI;
-        teamLength = _team.length;
     }
 
     modifier callerIsUser() {
@@ -77,17 +72,9 @@ contract NFTERC721A is Ownable, ERC721A, PaymentSplitter {
         receveur.transfer(balance);
     }
 
-    //ReleaseALL
-    function releaseAll() external {
-        for(uint i = 0 ; i < teamLength ; i++) {
-            release(payable(payee(i)));
-        }
-    }
 
-    receive() override external payable {
-        revert('Only if you mint');
-    }
 
+  
 }
 
 
