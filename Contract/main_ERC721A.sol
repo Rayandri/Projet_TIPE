@@ -17,8 +17,16 @@ contract NFTERC721A is Ownable, ERC721A {
     mapping(address => uint) public amountNFTsPerWallet;
     mapping(address => bool) public is_admin;
     address public enxTokenAddress;
-    uint256 public dailyPayment;
+    uint public dailyPayment;
 
+    struct Confier {
+        address personne;
+        uint idNFT;
+        bool is_confier;
+        uint dette;
+    }
+    
+    Confier[] public nftconfier;
 
     enum Etape {
         Alpha,
@@ -94,13 +102,54 @@ contract NFTERC721A is Ownable, ERC721A {
     function confierNFT(uint256 tokenId) public {
         require(ownerOf(tokenId) == msg.sender, "You don't own this NFT");
         _transfer(msg.sender, address(this), tokenId);
+
+        nftconfier.push(Confier({
+            personne: msg.sender, 
+            idNFT: tokenId,
+            is_confier: true
+        }));
+    }
+
+    
+
+    function isConfier_token(uint256 tokenId) public view returns (bool) {
+        for (uint i = 0; i < nftconfier.length; i++) {
+            if (nftconfier[i].idNFT == tokenId) {
+                return nftconfier[i].is_confier;
+            }
+        }
+        return false;
+    }
+
+    function isConfier_adress(address _address) public view returns (bool) {
+        for (uint i = 0; i < nftconfier.length; i++) {
+            if (nftconfier[i].personne == _address) {
+                return nftconfier[i].is_confier;
+            }
+        }
+        return false;
+    }
+
+    function recupIndex(address _address) public view returns (uint) {
+        for (uint i = 0; i < nftconfier.length; i++) {
+            if (nftconfier[i].personne == _address) {
+                return i;
+            }
+        }
     }
 
     // Pour récupérer son NFT
-    function recupNFT(uint256 tokenId) public {
-        require(ownerOf(tokenId) == address(this), "This NFT is not entrusted to the contract");
-        _transfer(address(this), msg.sender, tokenId);
+    function recupNFT(address _address) public {
+        require(isConfier_adress(_address), "You don't have NFT entrusted to the contract");
+        for (uint i = 0; i < nftconfier.length; i++) {
+            if (nftconfier[i].personne == _address) {
+                _transfer(address(this), _address, nftconfier[i].idNFT);
+                nftconfier[i].is_confier = false;
+                break;
+            }
+        }
     }
+
 
     function payDaily() public {
         uint256 balance = IERC20(enxTokenAddress).balanceOf(msg.sender);
@@ -109,11 +158,43 @@ contract NFTERC721A is Ownable, ERC721A {
         // Ajouter l'adresse de l'utilisateur à la liste des paiements publics
     }
 
+    
 
-    function checkBalanceAndBurn(uint256 tokenId) public {
-        uint256 balance = IERC20(enxTokenAddress).balanceOf(msg.sender);
+    function checkBalanceAndBurn(uint tokenId) public {
+        uint balance = IERC20(enxTokenAddress).balanceOf(msg.sender);
         if (balance < dailyPayment && ownerOf(tokenId) == address(this)) {
+            // Définir la struct correspondante sur "false"
+            for (uint i = 0; i < nftconfier.length; i++) {
+                if (nftconfier[i].idNFT == tokenId) {
+                    nftconfier[i].is_confier = false;
+                    break;
+                }
+            }
             _burn(tokenId);
+        }
+    }
+
+    function pay(uint _amount) public {
+        
+        uint balance = IERC20(enxTokenAddress).balanceOf(msg.sender);
+        uint i = recupIndex(msg.sender);
+
+
+        if (balance < _amount + nftconfier[i].dette) {
+            
+            // si il avais deja une dette
+            if (nftconfier[i].dette > 0) {
+                nftconfier[i].is_confier = false;
+                nftconfier[i].dette = 0;
+                _burn(nftconfier[i].idNFT);
+            }
+            // si il n'avais pas de dette
+            else {
+                nftconfier[i].dette = _amount;
+            }
+        }
+        else {
+            IERC20(enxTokenAddress).transferFrom(msg.sender, address(this), _amount + nftconfier[i].dette);
         }
     }
 
