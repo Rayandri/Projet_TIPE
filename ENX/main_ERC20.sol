@@ -1,6 +1,7 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.12;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "./ERC20.sol";
 
 contract ENXToken is ERC20, ERC20Detailed {
     constructor(uint256 initialSupply) ERC20("EnergyX", "ENX") public {
@@ -11,6 +12,5 @@ contract ENXToken is ERC20, ERC20Detailed {
         return 2;
     }
 
-    
 
 }
