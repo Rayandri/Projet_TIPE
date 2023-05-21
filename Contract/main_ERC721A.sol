@@ -38,7 +38,7 @@ contract NFTERC721A is Ownable, ERC721A {
 
     string public baseURI;
     Etape public Etape_en_cours;
-    uint public SalePrice = 1 ether;
+    uint public SalePrice = 0.001 ether;
 
     constructor(string memory _baseURI) ERC721A("Contract Energy", "AGR-DET")
      {

@@ -29,4 +29,5 @@ contract ENXToken is ERC20, Ownable {
         return balanceOf(_address);
     }
 
+
 }
