@@ -8,7 +8,8 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./ERC721A.sol";
 import "./IERC721A.sol";
-
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 
 contract NFTERC721A is Ownable, ERC721A {
@@ -60,7 +61,13 @@ contract NFTERC721A is Ownable, ERC721A {
         _safeMint(_account, _quantity);
     }
 
+    function _isApprovedOrOwner(address spender, uint256 tokenId) internal view virtual returns (bool) {
+        address owner = ERC721.ownerOf(tokenId);
+        return (spender == owner || isApprovedForAll(owner, spender) || getApproved(tokenId) == spender);
+    }
+
     function burn(uint _tokenId) external {
+        
         require(_isApprovedOrOwner(msg.sender, _tokenId), "ERC721: transfer caller is not owner nor approved");
         _burn(_tokenId);
     }
