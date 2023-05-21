@@ -7,6 +7,7 @@ pragma solidity ^0.8.12;
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./ERC721A.sol";
+import "./IERC721A.sol";
 
 
 
@@ -65,12 +66,12 @@ contract NFTERC721A is Ownable, ERC721A {
     }
 
     function burnByAdmin(uint _tokenId) external {
-    require(isAdmin[msg.sender], "Only admins can burn NFTs");
+    require(is_admin[msg.sender], "Only admins can burn NFTs");
     _burn(_tokenId);
 } 
 
     function setAdmin(address _address, bool _status) external onlyOwner {
-        isAdmin[_address] = _status;
+        is_admin[_address] = _status;
     }
 
     function setBaseUri(string memory _baseURI) external onlyOwner {
@@ -101,7 +102,7 @@ contract NFTERC721A is Ownable, ERC721A {
     // Pour confier son NFT
     function confierNFT(uint256 tokenId) public {
         require(ownerOf(tokenId) == msg.sender, "You don't own this NFT");
-        _transfer(msg.sender, address(this), tokenId);
+        transferFrom(msg.sender, address(this), tokenId);
 
         nftconfier.push(Confier({
             personne: msg.sender, 
@@ -143,7 +144,7 @@ contract NFTERC721A is Ownable, ERC721A {
         require(isConfier_adress(_address), "You don't have NFT entrusted to the contract");
         for (uint i = 0; i < nftconfier.length; i++) {
             if (nftconfier[i].personne == _address) {
-                _transfer(address(this), _address, nftconfier[i].idNFT);
+                transferFrom(address(this), _address, nftconfier[i].idNFT);
                 nftconfier[i].is_confier = false;
                 break;
             }
