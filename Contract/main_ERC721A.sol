@@ -4,6 +4,16 @@ pragma solidity ^0.8.12;
 //@author Rayan Drissi
 //@Contract d'energy 
 
+/* 
+to do a la compitation:
+    -set up the baseURI pour avoir les images des NFTs
+    -set up the enxTokenAddress 
+    -set up the dailyPayment pour savoir combien de ENX par jour
+    -set up the SalePrice (de base 0.001 ether)
+
+
+*/
+
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./ERC721A.sol";
@@ -31,15 +41,12 @@ contract NFTERC721A is Ownable, ERC721A {
     Confier[] public nftconfier;
 
     enum Etape {
-        Alpha,
-        Beta,
         Public,
-        Maintenance,
-        End
+        Maintenance
     }
 
     string public baseURI;
-    Etape public Etape_en_cours;
+    Etape public Etape_en_cours = Etape.Public;
     uint public SalePrice = 0.001 ether;
 
     constructor(string memory _baseURI) ERC721A("Contract Energy", "AGR-DET")
@@ -56,8 +63,11 @@ contract NFTERC721A is Ownable, ERC721A {
         uint price = SalePrice;
         require(price != 0, "le prix est gratuit");
         require( Etape_en_cours == Etape.Public, "La vente n'a pas commencer");
-        require(msg.value >= price * _quantity, "Not enought funds");
-        require(amountNFTsPerWallet[msg.sender] == 0, "Vous avez deja un contract");
+        if (msg.sender != owner()) {
+            require(msg.value >= price * _quantity, "Not enought funds");
+            require(amountNFTsPerWallet[msg.sender] == 0, "Vous avez deja un contract");
+        }
+        
         _safeMint(_account, _quantity);
     }
 
@@ -80,6 +90,19 @@ contract NFTERC721A is Ownable, ERC721A {
     function setAdmin(address _address, bool _status) external onlyOwner {
         is_admin[_address] = _status;
     }
+
+    function setEnxTokenAddress(address _address) external onlyOwner {
+        enxTokenAddress = _address;
+    }
+
+    function setDailyPayment(uint _amount) external onlyOwner {
+        dailyPayment = _amount;
+    }
+
+    function setSalePrice(uint _price) external onlyOwner {
+        SalePrice = _price;
+    }
+
 
     function setBaseUri(string memory _baseURI) external onlyOwner {
         baseURI = _baseURI;
@@ -114,7 +137,8 @@ contract NFTERC721A is Ownable, ERC721A {
         nftconfier.push(Confier({
             personne: msg.sender, 
             idNFT: tokenId,
-            is_confier: true
+            is_confier: true,
+            dette: 0
         }));
     }
 
