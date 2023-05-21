@@ -26,21 +26,23 @@ contract NFTERC721A is Ownable, ERC721A {
 
     using Strings for uint;
 
-    mapping(address => uint) public amountNFTsPerWallet;
-    mapping(address => bool) public is_admin;
-    address public enxTokenAddress;
-    uint public dailyPayment;
+    // un mapping est l'equivalent d'un dictionaire
+    mapping(address => uint) public amountNFTsPerWallet; 
+    mapping(address => bool) public is_admin; // Permet de stocker la liste des admins
+    
+    address public enxTokenAddress; // L'adresse du contract ENX sur la blockchain pour pouvoir interagir avec 
+    uint public dailyPayment; // Le montant de ENX a payer par jour (peut changer en temps reel)
 
-    struct Confier {
-        address personne;
+    struct Confier { // cette struct permet de stocker les informations des contrat 
+        address personne; //lorsque l'on active (lorsque qu'on recoit de l'electricité et qu'on paye )
         uint idNFT;
         bool is_confier;
         uint dette;
     }
     
-    Confier[] public nftconfier;
+    Confier[] public nftconfier; //declaration de la variable nftconfier
 
-    enum Etape {
+    enum Etape { // enum permet de definir des etapes pratique pour mettre en pause le contract en cas de probleme
         Public,
         Maintenance
     }
@@ -49,8 +51,7 @@ contract NFTERC721A is Ownable, ERC721A {
     Etape public Etape_en_cours = Etape.Public;
     uint public SalePrice = 0.001 ether;
 
-    constructor(string memory _baseURI) ERC721A("Contract Energy", "AGR-DET")
-     {
+    constructor(string memory _baseURI) ERC721A("Contract Energy", "AGR-DET"){ //l'equivalent d'un __init__() en python
         baseURI = _baseURI;
     }
 
@@ -206,7 +207,7 @@ contract NFTERC721A is Ownable, ERC721A {
         }
     }
 
-    function pay(uint _amount) public {
+    function pay(uint _amount) public { //fonction qui s'appellera automatiquement tout les jours
         
         uint balance = IERC20(enxTokenAddress).balanceOf(msg.sender);
         uint i = recupIndex(msg.sender);
