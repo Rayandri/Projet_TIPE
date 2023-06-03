@@ -55,12 +55,12 @@ contract NFTERC721A is Ownable, ERC721A {
         baseURI = _baseURI;
     }
 
-    modifier callerIsUser() {
+    modifier callerIsUser() { // permet de verifier que l'appelant est un utilisateur et non un programme
         require(tx.origin == msg.sender, "The caller is another contract");
         _;
     }
 
-    function Mint(address _account, uint _quantity) external payable callerIsUser {
+    function Mint(address _account, uint _quantity) external payable callerIsUser { // permet de creer un NFT
         uint price = SalePrice;
         require(price != 0, "le prix est gratuit");
         require( Etape_en_cours == Etape.Public, "La vente n'a pas commencer");
@@ -72,66 +72,67 @@ contract NFTERC721A is Ownable, ERC721A {
         _safeMint(_account, _quantity);
     }
 
-    function _isApprovedOrOwner(address spender, uint256 tokenId) internal view virtual returns (bool) {
+    function _isApprovedOrOwner(address spender, uint256 tokenId) internal view virtual returns (bool) { 
+        // permet de verifier que l'appelant est le proprietaire du NFT
         address owner = ERC721A.ownerOf(tokenId);
         return (spender == owner || isApprovedForAll(owner, spender) || getApproved(tokenId) == spender);
     }
 
     function burn(uint _tokenId) external {
-        
+        // permet de bruler un NFT
         require(_isApprovedOrOwner(msg.sender, _tokenId), "ERC721: transfer caller is not owner nor approved");
         _burn(_tokenId);
     }
 
     function burnByAdmin(uint _tokenId) external {
+        // permet de bruler un NFT par un admin
     require(is_admin[msg.sender], "Only admins can burn NFTs");
     _burn(_tokenId);
 } 
 
-    function setAdmin(address _address, bool _status) external onlyOwner {
+    function setAdmin(address _address, bool _status) external onlyOwner { // permet de definir un admin
         is_admin[_address] = _status;
     }
 
-    function setEnxTokenAddress(address _address) external onlyOwner {
+    function setEnxTokenAddress(address _address) external onlyOwner { // permet de definir l'adresse du contract ENX
         enxTokenAddress = _address;
     }
 
-    function setDailyPayment(uint _amount) external onlyOwner {
+    function setDailyPayment(uint _amount) external onlyOwner { // permet de definir le montant de ENX a payer par jour
         dailyPayment = _amount;
     }
 
-    function setSalePrice(uint _price) external onlyOwner {
+    function setSalePrice(uint _price) external onlyOwner { // permet de definir le prix de vente
         SalePrice = _price;
     }
 
 
-    function setBaseUri(string memory _baseURI) external onlyOwner {
+    function setBaseUri(string memory _baseURI) external onlyOwner { // permet de definir le baseURI
         baseURI = _baseURI;
     }
 
-    function currentTime() internal view returns(uint) {
+    function currentTime() internal view returns(uint) { // permet de recuperer le temps actuel
         return block.timestamp;
     }
 
-    function setStep(uint _step) external onlyOwner {
+    function setStep(uint _step) external onlyOwner { // permet de definir l'etape en cours
         Etape_en_cours = Etape(_step);
     }
 
     // le URI permet de relier a une image et les MetaData
     function tokenURI(uint _tokenId) public view virtual override returns (string memory) {
         require(_exists(_tokenId), "URI query for nonexistent token");
-
         return string(abi.encodePacked(baseURI, _tokenId.toString(), ".json"));
     }
 
-    // Pour RUG le projet 
     function transferAllFunds(address payable receveur) external onlyOwner {
+        // permet de transferer tout les fonds du contract vers une adresse
         uint balance = address(this).balance;
         receveur.transfer(balance);
     }
 
     // Pour confier son NFT
-    function confierNFT(uint256 tokenId) public {
+    function confierNFT(uint256 tokenId) public { // permet de verouiller son nft dans le compteur 
         require(ownerOf(tokenId) == msg.sender, "You don't own this NFT");
         transferFrom(msg.sender, address(this), tokenId);
 
@@ -197,13 +198,17 @@ contract NFTERC721A is Ownable, ERC721A {
         uint balance = IERC20(enxTokenAddress).balanceOf(msg.sender);
         if (balance < dailyPayment && ownerOf(tokenId) == address(this)) {
             // Définir la struct correspondante sur "false"
-            for (uint i = 0; i < nftconfier.length; i++) {
+            for (uint i = 0; i < nftconfier.length; i++) { 
                 if (nftconfier[i].idNFT == tokenId) {
                     nftconfier[i].is_confier = false;
+                    nftconfier[i].dette += dailyPayment;
                     break;
                 }
             }
-            _burn(tokenId);
+            if (nftconfier[i].dette > 2*dailyPayment) { // si la dette est superieur a 2 fois le dailyPayment alors on brule le NFT
+                _burn(tokenId);
+            }
+            
         }
     }
 
@@ -211,7 +216,6 @@ contract NFTERC721A is Ownable, ERC721A {
         
         uint balance = IERC20(enxTokenAddress).balanceOf(msg.sender);
         uint i = recupIndex(msg.sender);
-
 
         if (balance < _amount + nftconfier[i].dette) {
             
