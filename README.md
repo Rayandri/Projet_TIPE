@@ -1,6 +1,6 @@
-###Decentralized Electricity Provider using Blockchain Technology
+# Decentralized Electricity Provider using Blockchain Technology
 
-This GitHub repository contains the code and documentation for my TIPE (Travail d'Initiative Personnelle Encadré) project on decentralized electricity provision using blockchain technology. 
+### This GitHub repository contains the code and documentation for my TIPE (Travail d'Initiative Personnelle Encadré) project on decentralized electricity provision using blockchain technology. 
 
 The TIPE is a personal research project that students in France undertake as part of their studies, and I completed it during my time in the Maths Physique Informatique (Mathematics, Physics, and Computer Science) program.
 
